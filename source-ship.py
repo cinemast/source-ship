@@ -61,10 +61,15 @@ def main():
         cleanup()
         sys.exit(1)
 
-    call(["gpg2", "--armor", "--detach-sign", tarball_name])
     files.append(tarball_name+".asc")
-    call(["hub",  "release", "create", "-f", "tmp.changelog", "-a",
-          tarball_name+".asc", tag])
+    if call(["gpg2", "--armor", "--detach-sign", tarball_name]) != 0:
+        print("Error signing tarball")
+        cleanup()
+        sys.exit(1)
+
+    if call(["hub",  "release", "create", "-f", "tmp.changelog", "-a",
+             tarball_name+".asc", tag]) != 0:
+        print("Error creating GitHub release")
     cleanup()
 
 
